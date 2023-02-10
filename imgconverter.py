@@ -10,68 +10,32 @@ Image converter (mostly PNG to JPG)
 
 from pathlib import Path
 from PIL import Image
-import shutil
-import os
-
-# Get user input directory
-def getUserInput():
-    while True:
-        try:
-            user_input = Path(str(input('Enter dir path: ')))
-            user_input.exists()
-            return user_input    
-        except (FileNotFoundError, NotADirectoryError, OSError):
-            print("Please enter a directory...\n")  # doesn't reach
-        
-
-# Moves img to default folder        
-def jpgToFolder(image, dir):
-    x = dir.as_posix() + '\\001PNG-JPG'
-    p = Path(x)
-    shutil.move(str(image), p)
-    print(f'transfered {image} to folder {p.name}\n')
-
-# NOT USED, prints directory list.
-def dirlist(dir):
-    [print(x.name) for x in dir.iterdir() if x.suffix == '.png']
-
-# Creates default folder in CWD
-def createJPGFolder(dir):
-    try:
-        x = str(dir) + '\\001PNG-JPG\\'
-        p = Path(x)
-        p.mkdir()
-        print('****CREATED FOLDER****')
-    except FileExistsError:
-        print('****EXISTING FOLDER****')
-    
-# USED, converts file to JPG
-def convert(dir):
+from utilities import directories  
+            
+def convert(dir, new_dir, dir_list):
+    ''' converts file to JPG '''
     for x in dir.iterdir():
         if x.suffix == '.png':
             output = Path(dir.as_posix() + '\\' + x.stem + '.jpg')
+            if directories.check_img_in_dir(output, new_dir, dir_list): continue
             if output != x:
                 try:
                     with Image.open(x) as im:
                         im.save(output.name)
                         # im.show()
                         print(f"converted {x.name} to JPEG.")
-                        jpgToFolder(output, dir)
+                        directories.move_img_to_folder(output, new_dir)
                 except OSError:
                     print('Cannot convert', x.name, '\n')          
                 
-
-# if file w/o suffix
-def fileToJPG():
-    pass
-
-# main function
 def main():        
+    ''' main function '''
     while True:
-        dir = getUserInput()
-        os.chdir(dir.as_posix())
-        print(os.getcwd())
-        createJPGFolder(dir)
-        convert(dir)
+        dir = directories.input_dir()
+        directories.change_dir(dir)
+        directories.print_cwd()
+        new_dir = directories.create_dir(dir)
+        dir_list = directories.create_dir_list(new_dir)
+        convert(dir, new_dir, dir_list)
 
-
+main()
