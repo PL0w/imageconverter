@@ -7,18 +7,17 @@ from pathlib import Path
 import shutil
 import os
 
-def input_dir():
+def check_dir(user_input):
     '''
         Returns user input of dir if it exists    
     '''
-    while True:
-        try:
-            user_input = Path(str(input('\nEnter dir path: ')))
-            user_input.exists()
-            return user_input    
-        except (FileNotFoundError, NotADirectoryError, OSError):
-            print("Please enter a directory...\n")  # doesn't reach
-
+    try:
+        # user_input = Path(str(input('\nEnter dir path: ')))
+        user_input.exists()
+        return True    
+    except (FileNotFoundError, NotADirectoryError, OSError):
+        print("Please enter a directory...\n")  # doesn't reach
+        return False
 
 def create_dir(dir):
     '''
